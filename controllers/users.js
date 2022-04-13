@@ -1,40 +1,44 @@
 const User = require('../models/user');
-
-const ERROR_CODE = 400;
-const ERROR_NOT_FOUND = 404;
-
+const ErrorNotFound = require('../errors/errorNotFound');
+const ErrorValidation = require('../errors/errorValidation');
+const ErrorDefault = require('../errors/errorDefault');
 
 module.exports.getUser = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
     .catch((err) => next(err));
 };
-module.exports.getUserId = (req, res, next) => {
+module.exports.getUserId = (req, res) => {
   User.findById(req.params.id)
+    .orFail(() => {
+      throw new ErrorNotFound('Пользователь не найден');
+    })
     .then((users) => res.status(200).send(users))
     .catch((err) => {
+
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(400).send(new ErrorValidation('Пользователь по указанному _id не найден.'));
+      } else if (err.statusCode === 404) {
+        res.status(404).send(new ErrorNotFound('Пользователь по указанному _id не найден.'));
       } else {
-        next(err);
+        res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
       }
     });
 };
-module.exports.createUser = (req, res, next) => {
+module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        // res.status(ERROR_CODE).send('Переданы некорректные данные при создании пользователя.');
-        res.status(ERROR_CODE).send({ message:'Переданы некорректные данные при создании пользователя.' });
+        res.status(400).send(new ErrorValidation('Переданы некорректные данные при создании пользователя.'));
       } else {
-        next(err);
+        res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
       }
     });
 };
 
-module.exports.updateUser = (req, res, next) => {
+module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -49,16 +53,16 @@ module.exports.updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send('Переданы некорректные данные при создании пользователя.');
+        res.status(400).send(new ErrorValidation('Переданы некорректные данные при создании пользователя.'));
       } else if (err.name === 'CastError') {
-        res.status(ERROR_NOT_FOUND).send('Пользователь по указанному _id не найден.');
+        res.status(404).send(new ErrorNotFound('Пользователь по указанному _id не найден.'));
       } else {
-        next(err);
+        res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
       }
     });
 };
 
-module.exports.updateUserAvatar = (req, res, next) => {
+module.exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -73,11 +77,11 @@ module.exports.updateUserAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send('Переданы некорректные данные при создании пользователя.');
+        res.status(400).send(new ErrorValidation('Переданы некорректные данные при создании пользователя.'));
       } else if (err.name === 'CastError') {
-        res.status(ERROR_NOT_FOUND).send('Пользователь по указанному _id не найден.');
+        res.status(404).send(new ErrorNotFound('Пользователь по указанному _id не найден.'));
       } else {
-        next(err);
+        res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
       }
     });
 };
