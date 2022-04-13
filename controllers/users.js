@@ -3,6 +3,7 @@ const User = require('../models/user');
 const ERROR_CODE = 400;
 const ERROR_NOT_FOUND = 404;
 
+
 module.exports.getUser = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
@@ -14,6 +15,7 @@ module.exports.getUserId = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR_CODE).send('Пользователь по указанному _id не найден.');
+        res.status(ERROR_CODE).send(err);
       } else {
         next(err);
       }
@@ -25,7 +27,9 @@ module.exports.createUser = (req, res, next) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send('Переданы некорректные данные при создании пользователя.');
+        // res.status(ERROR_CODE).send('Переданы некорректные данные при создании пользователя.');
+        res.status(ERROR_CODE).send(err);
+        console.log(err.message)
       } else {
         next(err);
       }
