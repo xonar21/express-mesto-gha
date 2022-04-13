@@ -14,8 +14,7 @@ module.exports.getUserId = (req, res, next) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send('Пользователь по указанному _id не найден.');
-        res.status(ERROR_CODE).send(err);
+        res.status(ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
       } else {
         next(err);
       }
@@ -28,7 +27,7 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         // res.status(ERROR_CODE).send('Переданы некорректные данные при создании пользователя.');
-        res.status(ERROR_CODE).send({ message:'Переданы некорректные данные при создании пользователя.'});
+        res.status(ERROR_CODE).send({ message:'Переданы некорректные данные при создании пользователя.' });
       } else {
         next(err);
       }
