@@ -58,6 +58,7 @@ module.exports.getUserId = (req, res) => {
       }
     });
 };
+
 module.exports.createUser = (req, res, next) => {
   const {
     name,
@@ -66,10 +67,11 @@ module.exports.createUser = (req, res, next) => {
     email,
     password,
   } = req.body;
+
   User.findOne({ email })
     .then((user) => {
-      if (email === user.email) {
-        next(new ErrorConflict(`Пользователь с таким email ${email} уже зарегистрирован`));
+      if (user) {
+        res.status(409).send(new ErrorConflict({ message: `Пользователь с таким email ${email} уже зарегистрирован` }));
       }
       return bcrypt.hash(password, 10);
     })
@@ -80,15 +82,17 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((users) => User.findOne({ _id: users._id }))
-    .then((users) => res.status(200).send(users))
+    .then((user) => User.findOne({ _id: user._id })) // прячет пароль
+    .then((user) => {
+      res.status(200).send(user);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send(new ErrorBadRequest('Переданы некорректные данные при создании пользователя.'));
-      } else if (err === 'ReferenceError') {
-        next(new ErrorConflict(`Пользователь с таким email ${email} уже зарегистрирован`));
+        next(new ErrorBadRequest('Переданы некорректные данные.'));
+      } else if (err.code === 11000) {
+        next(new ErrorConflict({ message: err.errorMessage }));
       } else {
-        res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
+        next(err);
       }
     });
 };
