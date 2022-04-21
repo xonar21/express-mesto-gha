@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
       .send({ message: 'Необходима авторизация' });
   }
 
-  const token = authorization.replace('Bearer ', '');
+  const token = String(req.headers.authorization).replace('Bearer ', '');
   let payload;
 
   try {

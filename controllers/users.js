@@ -12,24 +12,25 @@ const ErrorBadRequest = require('../errors/errorBadRequest');
 
 const ErrorConflict = require('../errors/errorConflict');
 
-module.exports.login = (req, res) => {
+const Unauthorized = require('../errors/Unauthorized');
+
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findOne({ email }).select('+password')
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      return bcrypt.compare(password, user.password);
-    })
-    .then((matched) => {
-      const token = jwt.sign({ _id: matched._id }, 'some-secret-key', { expiresIn: '7d' });
-      if (!matched) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      return res.send({ token });
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      });
+      res.status(201).send({ message: 'Авторизация успешна', token });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      if (err.message === 'IncorrectEmail') {
+        next(new Unauthorized('Не правильный логин или пароль'));
+      }
+      next(err);
     });
 };
 module.exports.getUser = (req, res, next) => {
@@ -39,8 +40,19 @@ module.exports.getUser = (req, res, next) => {
 };
 module.exports.userInfo = (req, res, next) => {
   User.findById(req.user._id)
-    .then((users) => res.status(200).send(users))
-    .catch(() => next(res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'))));
+    .then((user) => {
+      if (!user._id) {
+        next(new ErrorNotFound('Пользователь не найден'));
+      }
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new ErrorBadRequest('Переданы некорректные данные.'));
+      } else {
+        next(err);
+      }
+    });
 };
 module.exports.getUserId = (req, res) => {
   User.findById(req.params.id)
@@ -71,7 +83,7 @@ module.exports.createUser = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        res.status(409).send(new ErrorConflict({ message: `Пользователь с таким email ${email} уже зарегистрирован` }));
+        res.status(409).send({ message: `Пользователь с таким email ${email} уже зарегистрирован` });
       }
       return bcrypt.hash(password, 10);
     })
