@@ -1,11 +1,46 @@
 const User = require('../models/user');
 
+const bcrypt = require('bcryptjs');
+
+const jwt = require('jsonwebtoken');
+
 const ErrorNotFound = require('../errors/errorNotFound');
 
+const ErrorDefault = require('../errors/errorDefault');
+
+const ErrorBadRequest = require('../errors/errorBadRequest');
+
+const ErrorConflict = require('../errors/errorConflict');
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+  User.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+    return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      const token = jwt.sign({ _id: matched._id }, 'some-secret-key');
+      if (!matched) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      res.send({ token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
 module.exports.getUser = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) => next(err));
+    .catch((err) => next(res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'))));
+};
+module.exports.userInfo = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((users) => res.status(200).send(users))
+    .catch((err) => next(res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'))));
 };
 module.exports.getUserId = (req, res) => {
   User.findById(req.params.id)
@@ -15,23 +50,35 @@ module.exports.getUserId = (req, res) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(400).send(new ErrorBadRequest('Пользователь по указанному _id не найден.'));
       } else if (err.statusCode === 404) {
-        res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(404).send(new ErrorNotFound('Пользователь по указанному _id не найден.'));
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию.' });
+        res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
       }
     });
 };
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const { name, about, avatar, email, password } = req.body;
+  User.findOne({ email })
+    .then((user) => {
+      console.log(email)
+      if (email === user.email) {
+        next(new ErrorConflict(`Пользователь с таким email ${email} уже зарегистрирован`));
+      }
+       return bcrypt.hash(password, 10);
+    })
+  .then((hash => User.create({ name, about, avatar, email, password: hash })))
+    .then((users) => User.findOne({ _id: users._id }))
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+        res.status(400).send(new ErrorBadRequest('Переданы некорректные данные при создании пользователя.'));
+      } else if (err === 'ReferenceError') {
+        next(new ErrorConflict(`Пользователь с таким email ${email} уже зарегистрирован`));
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию.' });
+        console.log(err)
+        res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
       }
     });
 };
@@ -51,11 +98,11 @@ module.exports.updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+        res.status(400).send(new ErrorBadRequest('Переданы некорректные данные при создании пользователя.'));
       } else if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(404).send(new ErrorNotFound('Пользователь по указанному _id не найден.'));
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию.' });
+        res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
       }
     });
 };
@@ -75,11 +122,11 @@ module.exports.updateUserAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+        res.status(400).send(new ErrorBadRequest('Переданы некорректные данные при создании пользователя.'));
       } else if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(404).send(new ErrorNotFound('Пользователь по указанному _id не найден.'));
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию.' });
+        res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
       }
     });
 };
