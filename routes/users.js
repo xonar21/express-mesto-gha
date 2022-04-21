@@ -1,4 +1,5 @@
 const router = require('express').Router();
+
 const
   {
     userInfo,
@@ -7,6 +8,7 @@ const
     updateUser,
     updateUserAvatar,
   } = require('../controllers/users');
+
 router.get('/me', userInfo);
 router.get('/', getUser);
 router.get('/:id', getUserId);

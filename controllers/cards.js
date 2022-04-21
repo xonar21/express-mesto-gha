@@ -7,12 +7,11 @@ const ErrorDefault = require('../errors/errorDefault');
 const ErrorBadRequest = require('../errors/errorBadRequest');
 
 module.exports.deleteCard = (req, res) => {
-  console.log(req)
   Card.findByIdAndRemove(req.params.cardid)
     .orFail(() => {
       res.status(404).send(new ErrorNotFound('Передан несуществующий _id карточки.'));
     })
-    .then((cards) => res.status(200).send(console.log(cards.owner.newObjectId)))
+    .then((cards) => res.status(200).send(cards))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(400).send(new ErrorBadRequest('Карточка с указанным _id не найдена.'));
