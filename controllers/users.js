@@ -83,7 +83,6 @@ module.exports.createUser = (req, res, next) => {
     .then((users) => User.findOne({ _id: users._id }))
     .then((users) => res.status(200).send(users))
     .catch((err) => {
-      console.log(err.name)
       if (err.name === 'ValidationError') {
         res.status(400).send(new ErrorBadRequest('Переданы некорректные данные при создании пользователя.'));
       } else if (err === 'ReferenceError') {
