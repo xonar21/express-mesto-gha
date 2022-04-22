@@ -64,7 +64,7 @@ module.exports.getUserId = (req, res) => {
       if (err.name === 'CastError') {
         res.status(400).send(new ErrorBadRequest('Пользователь по указанному _id не найден.'));
       } else if (err.statusCode === 404) {
-        res.status(404).send(new ErrorNotFound('Пользователь по указанному _id не найден.'));
+        res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
       } else {
         res.status(500).send(new ErrorDefault('Ошибка по умолчанию.'));
       }
