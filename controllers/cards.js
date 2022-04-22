@@ -1,7 +1,5 @@
 const Card = require('../models/card');
 
-const ErrorNotFound = require('../errors/errorNotFound');
-
 const ErrorDefault = require('../errors/errorDefault');
 
 const ErrorBadRequest = require('../errors/errorBadRequest');
@@ -9,7 +7,7 @@ const ErrorBadRequest = require('../errors/errorBadRequest');
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardid)
     .orFail(() => {
-      res.status(404).send(new ErrorNotFound('Передан несуществующий _id карточки.'));
+      res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
     })
     .then((cards) => res.status(200).send(cards))
     .catch((err) => {
@@ -49,7 +47,7 @@ module.exports.setCardLikes = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(404).send(new ErrorNotFound('Передан несуществующий _id карточки.'));
+      res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
     })
     .then((card) => {
       res.status(200).send({ data: card });
@@ -72,7 +70,7 @@ module.exports.deleteCardLikes = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(404).send(new ErrorNotFound('Передан несуществующий _id карточки.'));
+      res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
     })
     .then((card) => {
       res.status(200).send({ data: card });
