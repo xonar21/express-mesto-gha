@@ -50,9 +50,6 @@ const userValid = celebrate({
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().custom(validateUrl),
-    email: Joi.string().email().min(2).required(),
-    password: Joi.string().min(2).required(),
   }),
 });
 
