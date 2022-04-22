@@ -16,8 +16,8 @@ const
     deleteCardLikes,
   } = require('../controllers/cards');
 
-router.post('/', auth, createCard);
-router.get('/', auth, createCardValid, getCard);
+router.post('/', auth, createCardValid, createCard);
+router.get('/', auth, getCard);
 router.delete('/:cardid', parameterIdValid('cardid'), auth, deleteCard);
 router.put('/:cardid/likes', auth, parameterIdValid('cardid'), setCardLikes);
 router.delete('/:cardid/likes', auth, parameterIdValid('cardid'), deleteCardLikes);
