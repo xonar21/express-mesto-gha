@@ -26,7 +26,37 @@ const loginValid = celebrate({
   }),
 });
 
+const userAvatarValid = celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().required().custom(validateUrl),
+  }),
+});
+
+const createCardValid = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().custom(validateUrl),
+  }),
+});
+
+const userValid = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+  }),
+});
+
+const parameterIdValid = (nameId) => celebrate({
+  params: Joi.object().keys({
+    [nameId]: Joi.string().hex().length(24),
+  }),
+});
+
 module.exports = {
   registerValid,
   loginValid,
+  userAvatarValid,
+  createCardValid,
+  parameterIdValid,
+  userValid,
 };

@@ -50,12 +50,12 @@ userSchema.statics.findUserByCredentials = function loginUser(res, email, passwo
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw res.send({ message: 'Указан некорректный Email или пароль.' });
+        throw res.status(401).send({ message: 'Указан некорректный Email или пароль.' });
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw res.send({ message: 'Указан некорректный Email или пароль.' });
+            throw res.status(401).send({ message: 'Указан некорректный Email или пароль.' });
           }
           return user;
         });
