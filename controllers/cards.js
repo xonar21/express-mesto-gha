@@ -6,6 +6,8 @@ const ErrorNotFound = require('../errors/errorNotFound');
 
 const ErrorBadRequest = require('../errors/errorBadRequest');
 
+const Forbidden = require('../errors/Forbidden');
+
 // module.exports.deleteCard = (req, res) => {
 //   Card.findByIdAndRemove(req.params.cardid)
 //     .orFail(() => {
@@ -21,23 +23,41 @@ const ErrorBadRequest = require('../errors/errorBadRequest');
 //     });
 // };
 
+// module.exports.deleteCard = (req, res, next) => {
+//   Card.findByIdAndRemove(req.params.cardid)
+//     .orFail(() => {
+//       throw new ErrorNotFound('Карточка не найдена');
+//     })
+//     .then((card) => {
+//       if (!card) {
+//         next(new ErrorNotFound('Карточка не найдена'));
+//       }
+//       res.status(200).send({ data: card, message: 'Карточка удалена' });
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         next(new ErrorBadRequest({ message: 'Переданы некорректные данные' }));
+//       }
+//       next(err);
+//     });
+// };
+
 module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardid)
+  const { cardid } = req.params;
+  const userId = req.user._id;
+
+  Card.findById({ _id: cardid })
     .orFail(() => {
-      throw new ErrorNotFound('Карточка не найдена');
+      throw new ErrorNotFound(`Карточка с id ${cardid} не найдена!`);
     })
     .then((card) => {
-      if (!card) {
-        next(new ErrorNotFound('Карточка не найдена'));
+      if (card.owner.toString() !== userId) {
+        throw new Forbidden('Отказано в удалении. Пользователь не является владельцом карточки');
       }
-      res.status(200).send({ data: card, message: 'Карточка удалена' });
+      return Card.findByIdAndRemove(card._id);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ErrorBadRequest({ message: 'Переданы некорректные данные' }));
-      }
-      next(err);
-    });
+    .then((card) => res.send({ message: 'Успешно удалена карточка:', data: card }))
+    .catch(next);
 };
 
 module.exports.getCard = (req, res, next) => {
