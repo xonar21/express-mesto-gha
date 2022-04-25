@@ -16,13 +16,13 @@ const { registerValid, loginValid } = require('./middlewares/validation');
 
 const { login, createUser } = require('./controllers/users');
 
-const { requestLogger, errorLoger } = require('./middlewares/loger');
+// const { requestLogger, errorLoger } = require('./middlewares/loger');
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
 
-app.use(requestLogger);
+// app.use(requestLogger);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -42,7 +42,7 @@ app.use('/users', require('./routes/users'));
 
 app.use('/cards', require('./routes/cards'));
 
-app.use(errorLoger);
+// app.use(errorLoger);
 
 app.use(auth);
 
