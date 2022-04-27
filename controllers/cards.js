@@ -12,7 +12,7 @@ module.exports.deleteCard = (req, res, next) => {
 
   Card.findById({ _id: cardid })
     .orFail(() => {
-      throw res.status(404).send(new ErrorNotFound(`Карточка с id ${cardid} не найдена!`));
+      throw new ErrorNotFound(`Карточка с id ${cardid} не найдена!`);
     })
     .then((card) => {
       if (card.owner.toString() !== userId) {
