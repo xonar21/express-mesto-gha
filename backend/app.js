@@ -16,13 +16,9 @@ const { registerValid, loginValid } = require('./middlewares/validation');
 
 const { login, createUser } = require('./controllers/users');
 
-const { requestLogger, errorLoger } = require('./middlewares/loger');
-
 const { PORT = 3000 } = process.env;
 
 const app = express();
-
-app.use(requestLogger);
 
 app.use(bodyParser.json());
 
@@ -33,8 +29,6 @@ app.post('/signup', registerValid, createUser);
 app.post('/signin', loginValid, login);
 
 mongoose.connect('mongodb://localhost:27017/mestodb', { useNewUrlParser: true });
-
-app.use(errorLoger);
 
 app.use(auth);
 
