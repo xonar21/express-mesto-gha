@@ -1,7 +1,7 @@
 const allowedCors = [
   'https://mestoproject.nomoredomains.xyz',
   'http://mestoproject.nomoredomains.xyz',
-  'localhost:3000'
+  'http://localhost:3000'
 ];
 
 app.use(function(req, res, next) {
