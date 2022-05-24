@@ -10,6 +10,8 @@ const error = require('./routes/error');
 
 const auth = require('./middlewares/auth');
 
+const cors = require('./middlewares/cors');
+
 const errHandler = require('./middlewares/errHandler');
 
 const { registerValid, loginValid } = require('./middlewares/validation');
@@ -29,6 +31,8 @@ app.post('/signup', registerValid, createUser);
 app.post('/signin', loginValid, login);
 
 mongoose.connect('mongodb://localhost:27017/mestodb', { useNewUrlParser: true });
+
+app.use(cors);
 
 app.use(auth);
 
