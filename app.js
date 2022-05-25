@@ -10,6 +10,8 @@ const error = require('./routes/error');
 
 const auth = require('./middlewares/auth');
 
+const cors = require('cors');
+
 const errHandler = require('./middlewares/errHandler');
 
 const { registerValid, loginValid } = require('./middlewares/validation');
@@ -17,6 +19,8 @@ const { registerValid, loginValid } = require('./middlewares/validation');
 const { login, createUser } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
+
+app.use(cors());
 
 const app = express();
 
