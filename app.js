@@ -8,11 +8,11 @@ const mongoose = require('mongoose');
 
 const bodyParser = require('body-parser');
 
+const cors = require('cors');
+
 const error = require('./routes/error');
 
 const auth = require('./middlewares/auth');
-
-const cors = require('cors');
 
 const errHandler = require('./middlewares/errHandler');
 
@@ -20,9 +20,12 @@ const { registerValid, loginValid } = require('./middlewares/validation');
 
 const { login, createUser } = require('./controllers/users');
 
-const app = express();
+const { requestLogger, errorLogger } = require('./middlewares/loger');
 
 const { PORT = 4000 } = process.env;
+
+const app = express();
+app.use(requestLogger);
 
 app.use(cors({
   origin: [
@@ -52,7 +55,7 @@ app.post('/signin', loginValid, login);
 mongoose.connect('mongodb://localhost:27017/mestodb', { useNewUrlParser: true });
 
 app.use(auth);
-
+app.use(errorLogger);
 app.use(error);
 
 app.use(errors());
