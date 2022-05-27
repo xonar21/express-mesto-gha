@@ -53,7 +53,7 @@ module.exports.setCardLikes = (req, res, next) => {
   )
     .orFail(() => new ErrorNotFound('Передан несуществующий _id карточки.'))
     .then((card) => {
-      res.status(200).send({ data: card });
+      res.status(200).send( card );
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -74,7 +74,7 @@ module.exports.deleteCardLikes = (req, res, next) => {
   )
     .orFail(() => new ErrorNotFound('Передан несуществующий _id карточки.'))
     .then((card) => {
-      res.status(200).send({ data: card });
+      res.status(200).send( card );
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

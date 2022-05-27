@@ -1,30 +1,33 @@
-const allowedCors = [
-  'https://mestoproject.nomoredomains.xyz',
-  'http://mestoproject.nomoredomains.xyz',
-  'http://localhost:3000'
-];
+// const express = require('express');
 
-app.use(function(req, res, next) {
-  const { origin } = req.headers;
+// const app = express();
 
-  const { method } = req;
+// const allowedCors = [
+//   'https://mestoproject.nomoredomains.xyz',
+//   'http://mestoproject.nomoredomains.xyz',
+//   'http://localhost:3000'
+// ];
 
-  const DEFAULT_ALLOWED_METHODS = "GET,HEAD,PUT,PATCH,POST,DELETE";
+// app.use(function(req, res, next) {
+//   const { origin } = req.headers;
 
-  const requestHeaders = req.headers['access-control-request-headers'];
+//   const { method } = req;
 
-  if (allowedCors.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
+//   const DEFAULT_ALLOWED_METHODS = "GET,HEAD,PUT,PATCH,POST,DELETE";
 
-  if (method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
-  }
+//   const requestHeaders = req.headers['access-control-request-headers'];
 
-  if (method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Headers', requestHeaders);
-    return res.end();
-  }
+//   if (allowedCors.includes(origin)) {
+//     res.header('Access-Control-Allow-Origin', origin);
+//   }
+//   if (method === 'OPTIONS') {
+//     res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
+//   }
 
-  next();
-});
+//   if (method === 'OPTIONS') {
+//     res.header('Access-Control-Allow-Headers', requestHeaders);
+//     return res.end();
+//   }
+
+//   next();
+// });
