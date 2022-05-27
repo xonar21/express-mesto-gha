@@ -28,7 +28,7 @@ app.use(cors({
   origin: [
     'https://mestoproject.nomoredomains.xyz',
     'http://mestoproject.nomoredomains.xyz',
-    'http://localhost:4000',
+    'http://localhost:3000',
   ],
   methods: ['OPTIONS', 'GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
