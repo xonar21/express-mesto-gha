@@ -20,7 +20,7 @@ const { login, createUser } = require('./controllers/users');
 
 const app = express();
 
-const { PORT = 4000 } = process.env;
+const { PORT = 3000 } = process.env;
 
 // const allowedCors = [
 //   'https://mestoproject.nomoredomains.xyz',
